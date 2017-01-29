@@ -22,7 +22,7 @@ $ go get github.com/opteemister/terraform-provider-sendgrid
 * Install the dependencies:
 
 ```shell
-$ cd $GOPATH/src/github.com/jtopjian/terraform-provider-sendgrid
+$ cd $GOPATH/src/github.com/opteemister/terraform-provider-sendgrid
 $ go get
 ```
 
