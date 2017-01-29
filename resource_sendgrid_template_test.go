@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/opteemister/terraform-client-sendgrid"
+	"github.com/romanlaguta/terraform-client-sendgrid"
 )
 
 func TestAccSendgridTemplate_Basic(t *testing.T) {
@@ -55,9 +55,11 @@ func TestAccSendgridTemplate_Updated(t *testing.T) {
 }
 
 func testAccCheckSendgridTemplateDestroy(s *terraform.State) error {
+	fmt.Println("testAccCheckSendgridTemplateDestroy")
 	client := testAccProvider.Meta().(*sendgrid_client.Client)
 
 	if err := destroyHelper(s, client); err != nil {
+		fmt.Println("testAccCheckSendgridTemplateDestroy error: ", err)
 		return err
 	}
 	return nil
@@ -86,22 +88,29 @@ resource "sendgrid_template" "foo" {
 `
 
 func destroyHelper(s *terraform.State, client *sendgrid_client.Client) error {
+	fmt.Println("destroyHelper")
 	for _, r := range s.RootModule().Resources {
-		if _, err := client.GetTemplate(r.Primary.ID); err != nil {
-			if strings.Contains(err.Error(), "404") {
-				continue
+		fmt.Println(r.Type)
+		if r.Type == "sendgrid_template" {
+			fmt.Println("Delete")
+			if _, err := client.GetTemplate(r.Primary.ID); err != nil {
+				if strings.Contains(err.Error(), "404") {
+					continue
+				}
+				return fmt.Errorf("Received an error retrieving template %s", err)
 			}
-			return fmt.Errorf("Received an error retrieving template %s", err)
+			return fmt.Errorf("Template still exists")
 		}
-		return fmt.Errorf("Template still exists")
 	}
 	return nil
 }
 
 func existsHelper(s *terraform.State, client *sendgrid_client.Client) error {
 	for _, r := range s.RootModule().Resources {
-		if _, err := client.GetTemplate(r.Primary.ID); err != nil {
-			return fmt.Errorf("Received an error retrieving template %s", err)
+		if r.Type == "sendgrid_template" {
+			if _, err := client.GetTemplate(r.Primary.ID); err != nil {
+				return fmt.Errorf("Received an error retrieving template %s", err)
+			}
 		}
 	}
 	return nil

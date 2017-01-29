@@ -3,7 +3,7 @@ package sendgrid
 import (
 	"log"
 
-	"github.com/opteemister/terraform-client-sendgrid"
+	"github.com/romanlaguta/terraform-client-sendgrid"
 )
 
 // Config holds API key to authenticate to Sendgrid.

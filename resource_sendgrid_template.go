@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/opteemister/terraform-client-sendgrid"
+	"github.com/romanlaguta/terraform-client-sendgrid"
 )
 
 func resourceSendgridTemplate() *schema.Resource {

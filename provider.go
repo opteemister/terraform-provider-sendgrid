@@ -20,7 +20,8 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"sendgrid_template": resourceSendgridTemplate(),
+			"sendgrid_template":         resourceSendgridTemplate(),
+			"sendgrid_template_version": resourceSendgridTemplateVersion(),
 		},
 
 		ConfigureFunc: providerConfigure,
