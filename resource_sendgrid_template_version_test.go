@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/romanlaguta/terraform-client-sendgrid"
+	"github.com/opteemister/terraform-client-sendgrid"
 )
 
 func TestAccSendgridTemplateVersion_Basic(t *testing.T) {
