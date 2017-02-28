@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"errors"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform/tree/0-8-stable/helper/schema"
+	"github.com/hashicorp/terraform/tree/0-8-stable/terraform"
 )
 
 func Provider() terraform.ResourceProvider {

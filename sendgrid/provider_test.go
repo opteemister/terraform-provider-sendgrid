@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform/tree/0-8-stable/helper/schema"
+	"github.com/hashicorp/terraform/tree/0-8-stable/terraform"
 )
 
 var testAccProviders map[string]terraform.ResourceProvider

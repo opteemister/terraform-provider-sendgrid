@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform/tree/0-8-stable/helper/resource"
+	"github.com/hashicorp/terraform/tree/0-8-stable/terraform"
 	"github.com/opteemister/terraform-client-sendgrid"
 )
 

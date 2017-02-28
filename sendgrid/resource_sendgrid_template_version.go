@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/tree/0-8-stable/helper/schema"
 	"github.com/mitchellh/go-homedir"
 	"github.com/opteemister/terraform-client-sendgrid"
 )
