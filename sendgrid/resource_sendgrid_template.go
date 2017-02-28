@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform/tree/0-8-stable/helper/schema"
+	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/opteemister/terraform-client-sendgrid"
 )
 

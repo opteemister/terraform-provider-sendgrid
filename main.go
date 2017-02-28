@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/hashicorp/terraform/tree/0-8-stable/plugin"
+	"github.com/hashicorp/terraform/plugin"
 	"github.com/opteemister/terraform-provider-sendgrid/sendgrid"
 )
 
