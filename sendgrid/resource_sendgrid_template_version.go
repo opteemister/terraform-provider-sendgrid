@@ -46,11 +46,13 @@ func resourceSendgridTemplateVersion() *schema.Resource {
 			},
 			"html_content_hash": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"plain_content_hash": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"active": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -120,24 +122,34 @@ func resourceSendgridTemplateVersionCreate(d *schema.ResourceData, meta interfac
 	}
 	fmt.Println("Create template_version2")
 	d.SetId(m.Id)
-	//	d.Set("html_content_hash", getHash(m.HtmlContent))
-	//	d.Set("plain_content_hash", getHash(m.PlainContent))
+	d.Set("html_content_hash", getHash(m.HtmlContent))
+	d.Set("plain_content_hash", getHash(m.PlainContent))
 
 	return nil
 }
 
 func resourceSendgridTemplateVersionRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*sendgrid_client.Client)
+	// Don't know why but it didn't requried here
+	//client := meta.(*sendgrid_client.Client)
 
-	fmt.Println("Read template_version")
-	m, err := client.GetTemplateVersion(d.Get("template_id").(string), d.Id())
+	// fmt.Println("Read template_version")
+	//   m, err := client.GetTemplateVersion(d.Get("template_id").(string), d.Id())
+	//   if err != nil {
+	//     return fmt.Errorf("error reading template_version: %s", err.Error())
+	//   }
+
+	htmlContent, err := loadFileContent(d.Get("html_content_file").(string))
 	if err != nil {
-		return fmt.Errorf("error reading template_version: %s", err.Error())
+		return err
 	}
-	//fmt.Println("[DEBUG] TemplateVersion: ", m)
-	d.Set("html_content_hash", getHash(m.HtmlContent))
-	d.Set("plain_content_hash", getHash(m.PlainContent))
 
+	plainContent, err := loadFileContent(d.Get("plain_content_file").(string))
+	if err != nil {
+		return err
+	}
+	d.Set("html_content_hash", getHash(string(htmlContent)))
+	d.Set("plain_content_hash", getHash(string(plainContent)))
+	//fmt.Printf("[DEBUG] TemplateVersion: %s ----- %s", getHash(string(m.HtmlContent)), getHash(string(htmlContent)))
 	return nil
 }
 
@@ -164,8 +176,8 @@ func resourceSendgridTemplateVersionDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("error deleting TemplateVersion: %s", err.Error())
 	}
 
-	//	d.Set("html_content_hash", "")
-	//	d.Set("plain_content_hash", "")
+	d.Set("html_content_hash", "")
+	d.Set("plain_content_hash", "")
 
 	return nil
 }

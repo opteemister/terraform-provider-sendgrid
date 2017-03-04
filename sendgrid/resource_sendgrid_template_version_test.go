@@ -12,7 +12,7 @@ import (
 	"github.com/opteemister/terraform-client-sendgrid"
 )
 
-func testAccSendgridTemplateVersion_Basic(t *testing.T) {
+func TestAccSendgridTemplateVersion_Basic(t *testing.T) {
 	htmlContent, err := loadFileContent("./resources/test_template.html")
 	if err != nil {
 		t.Error("Can't read template file")
@@ -46,7 +46,7 @@ func testAccSendgridTemplateVersion_Basic(t *testing.T) {
 	})
 }
 
-func testAccSendgridTemplateVersionNotActive(t *testing.T) {
+func TestAccSendgridTemplateVersionNotActive(t *testing.T) {
 	htmlContent, err := loadFileContent("./resources/test_template.html")
 	if err != nil {
 		t.Error("Can't read template file")
@@ -223,8 +223,6 @@ resource "sendgrid_template_version" "foo" {
 	subject = "foo subject"
 	html_content_file = "./resources/test_template.html"
 	plain_content_file = "./resources/test_template_plain.html"
-	html_content_hash = "${base64sha256(file("./resources/test_template.html"))}"
-	plain_content_hash = "${base64sha256(file("./resources/test_template_plain.html"))}"
 }
 `
 
@@ -240,8 +238,6 @@ resource "sendgrid_template_version" "foo" {
 	html_content_file = "./resources/test_template.html"
 	plain_content_file = "./resources/test_template_plain.html"
   active = false
-	html_content_hash = "${base64sha256(file("./resources/test_template.html"))}"
-	plain_content_hash = "${base64sha256(file("./resources/test_template_plain.html"))}"
 }
 `
 
@@ -257,8 +253,6 @@ resource "sendgrid_template_version" "foo" {
 	html_content_file = "./resources/test_template.html"
 	plain_content_file = "./resources/test_template_plain.html"
   active = false
-	html_content_hash = "${base64sha256(file("./resources/test_template.html"))}"
-	plain_content_hash = "${base64sha256(file("./resources/test_template_plain.html"))}"
 }
 `
 
@@ -273,8 +267,6 @@ resource "sendgrid_template_version" "foo" {
 	subject = "foo subject"
 	html_content_file = "./resources/temp_template.html"
 	plain_content_file = "./resources/temp_template_plain.html"
-	html_content_hash = "${base64sha256(file("./resources/temp_template.html"))}"
-	plain_content_hash = "${base64sha256(file("./resources/temp_template_plain.html"))}"
 }
 `
 
