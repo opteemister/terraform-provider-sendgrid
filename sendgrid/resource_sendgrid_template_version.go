@@ -1,6 +1,8 @@
 package sendgrid
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -42,13 +44,13 @@ func resourceSendgridTemplateVersion() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"html_content": &schema.Schema{
+			"html_content_hash": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+				Required: true,
 			},
-			"plain_content": &schema.Schema{
+			"plain_content_hash": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+				Required: true,
 			},
 			"active": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -97,7 +99,7 @@ func resourceSendgridTemplateVersionExists(d *schema.ResourceData, meta interfac
 		if strings.Contains(err.Error(), "404 Not Found") {
 			return false, nil
 		}
-		return false, err
+		return false, fmt.Errorf("error checking template_version: %s", err.Error())
 	}
 
 	return true, nil
@@ -109,17 +111,17 @@ func resourceSendgridTemplateVersionCreate(d *schema.ResourceData, meta interfac
 
 	m, err := buildTemplateVersionStruct(d)
 	if err != nil {
-		return fmt.Errorf("error updating template_version: %s", err.Error())
+		return err
 	}
 	fmt.Println("Create template_version1")
 	m, err = client.CreateTemplateVersion(m)
 	if err != nil {
-		return fmt.Errorf("error updating template_version: %s", err.Error())
+		return fmt.Errorf("error creating template_version: %s", err.Error())
 	}
 	fmt.Println("Create template_version2")
 	d.SetId(m.Id)
-	d.Set("html_content", m.HtmlContent)
-	d.Set("plain_content", m.PlainContent)
+	//	d.Set("html_content_hash", getHash(m.HtmlContent))
+	//	d.Set("plain_content_hash", getHash(m.PlainContent))
 
 	return nil
 }
@@ -130,15 +132,11 @@ func resourceSendgridTemplateVersionRead(d *schema.ResourceData, meta interface{
 	fmt.Println("Read template_version")
 	m, err := client.GetTemplateVersion(d.Get("template_id").(string), d.Id())
 	if err != nil {
-		return err
+		return fmt.Errorf("error reading template_version: %s", err.Error())
 	}
-	fmt.Println("[DEBUG] TemplateVersion: %v", m)
-	d.Set("name", m.Name)
-	d.Set("template_id", m.TemplateId)
-	d.Set("subject", m.Subject)
-	d.Set("html_content", m.HtmlContent)
-	d.Set("plain_content", m.PlainContent)
-	d.Set("active", m.Active)
+	//fmt.Println("[DEBUG] TemplateVersion: ", m)
+	d.Set("html_content_hash", getHash(m.HtmlContent))
+	d.Set("plain_content_hash", getHash(m.PlainContent))
 
 	return nil
 }
@@ -163,8 +161,11 @@ func resourceSendgridTemplateVersionDelete(d *schema.ResourceData, meta interfac
 
 	fmt.Println("Delete template_version")
 	if err := client.DeleteTemplateVersion(d.Get("template_id").(string), d.Id()); err != nil {
-		return err
+		return fmt.Errorf("error deleting TemplateVersion: %s", err.Error())
 	}
+
+	//	d.Set("html_content_hash", "")
+	//	d.Set("plain_content_hash", "")
 
 	return nil
 }
@@ -172,7 +173,7 @@ func resourceSendgridTemplateVersionDelete(d *schema.ResourceData, meta interfac
 func resourceSendgridTemplateVersionImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	fmt.Println("Import template_version")
 	if err := resourceSendgridTemplateVersionRead(d, meta); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error importing TemplateVersion: %s", err.Error())
 	}
 	return []*schema.ResourceData{d}, nil
 }
@@ -190,4 +191,14 @@ func loadFileContent(v string) ([]byte, error) {
 		return nil, err
 	}
 	return fileContent, nil
+}
+
+func getHash(data string) string {
+	sha := sha256.New()
+	sha.Write([]byte(data))
+	shaSum := sha.Sum(nil)
+	encoded := base64.StdEncoding.EncodeToString(shaSum[:])
+	//h := md5.New()
+	//io.WriteString(h, data)
+	return encoded //fmt.Sprintf("%x", h.Sum(nil))
 }

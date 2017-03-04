@@ -2,15 +2,17 @@ package sendgrid
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/mitchellh/go-homedir"
 	"github.com/opteemister/terraform-client-sendgrid"
 )
 
-func TestAccSendgridTemplateVersion_Basic(t *testing.T) {
+func testAccSendgridTemplateVersion_Basic(t *testing.T) {
 	htmlContent, err := loadFileContent("./resources/test_template.html")
 	if err != nil {
 		t.Error("Can't read template file")
@@ -35,16 +37,16 @@ func TestAccSendgridTemplateVersion_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"sendgrid_template_version.foo", "subject", "foo subject"),
 					resource.TestCheckResourceAttr(
-						"sendgrid_template_version.foo", "html_content", string(htmlContent)),
+						"sendgrid_template_version.foo", "html_content_hash", getHash(string(htmlContent))),
 					resource.TestCheckResourceAttr(
-						"sendgrid_template_version.foo", "plain_content", string(plainContent)),
+						"sendgrid_template_version.foo", "plain_content_hash", getHash(string(plainContent))),
 				),
 			},
 		},
 	})
 }
 
-func TestAccSendgridTemplateVersionNotActive(t *testing.T) {
+func testAccSendgridTemplateVersionNotActive(t *testing.T) {
 	htmlContent, err := loadFileContent("./resources/test_template.html")
 	if err != nil {
 		t.Error("Can't read template file")
@@ -69,9 +71,9 @@ func TestAccSendgridTemplateVersionNotActive(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"sendgrid_template_version.foo", "subject", "foo subject"),
 					resource.TestCheckResourceAttr(
-						"sendgrid_template_version.foo", "html_content", string(htmlContent)),
+						"sendgrid_template_version.foo", "html_content_hash", getHash(string(htmlContent))),
 					resource.TestCheckResourceAttr(
-						"sendgrid_template_version.foo", "plain_content", string(plainContent)),
+						"sendgrid_template_version.foo", "plain_content_hash", getHash(string(plainContent))),
 					resource.TestCheckResourceAttr(
 						"sendgrid_template_version.foo", "active", "false"),
 				),
@@ -86,15 +88,15 @@ func TestAccSendgridTemplateVersion_Updated(t *testing.T) {
 		t.Error("Can't read template file")
 	}
 
-	htmlContent2, err := loadFileContent("./resources/test_template2.html")
-	if err != nil {
-		t.Error("Can't read template file")
-	}
-
 	plainContent, err := loadFileContent("./resources/test_template_plain.html")
 	if err != nil {
 		t.Error("Can't read template file")
 	}
+
+	content1 := "content1"
+	content2 := "content2"
+	plain_content1 := "plain_content1"
+	plain_content2 := "plain_content2"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -110,9 +112,9 @@ func TestAccSendgridTemplateVersion_Updated(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"sendgrid_template_version.foo", "subject", "foo subject"),
 					resource.TestCheckResourceAttr(
-						"sendgrid_template_version.foo", "html_content", string(htmlContent)),
+						"sendgrid_template_version.foo", "html_content_hash", getHash(string(htmlContent))),
 					resource.TestCheckResourceAttr(
-						"sendgrid_template_version.foo", "plain_content", string(plainContent)),
+						"sendgrid_template_version.foo", "plain_content_hash", getHash(string(plainContent))),
 					resource.TestCheckResourceAttr(
 						"sendgrid_template_version.foo", "active", "true"),
 				),
@@ -126,14 +128,18 @@ func TestAccSendgridTemplateVersion_Updated(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"sendgrid_template_version.foo", "subject", "bar subject"),
 					resource.TestCheckResourceAttr(
-						"sendgrid_template_version.foo", "html_content", string(htmlContent)),
+						"sendgrid_template_version.foo", "html_content_hash", getHash(string(htmlContent))),
 					resource.TestCheckResourceAttr(
-						"sendgrid_template_version.foo", "plain_content", string(plainContent)),
+						"sendgrid_template_version.foo", "plain_content_hash", getHash(string(plainContent))),
 					resource.TestCheckResourceAttr(
 						"sendgrid_template_version.foo", "active", "false"),
 				),
 			},
 			resource.TestStep{
+				PreConfig: func() {
+					writeContent("./resources/temp_template.html", content1)
+					writeContent("./resources/temp_template_plain.html", plain_content1)
+				},
 				Config: testAccCheckSendgridTemplateVersionConfigUpdatedContent,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSendgridTemplateVersionExists("sendgrid_template_version.foo"),
@@ -142,15 +148,49 @@ func TestAccSendgridTemplateVersion_Updated(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"sendgrid_template_version.foo", "subject", "foo subject"),
 					resource.TestCheckResourceAttr(
-						"sendgrid_template_version.foo", "html_content", string(htmlContent2)),
+						"sendgrid_template_version.foo", "html_content_hash", getHash(content1)),
 					resource.TestCheckResourceAttr(
-						"sendgrid_template_version.foo", "plain_content", string(plainContent)),
+						"sendgrid_template_version.foo", "plain_content_hash", getHash(plain_content1)),
+					resource.TestCheckResourceAttr(
+						"sendgrid_template_version.foo", "active", "true"),
+				),
+			},
+			resource.TestStep{
+				PreConfig: func() {
+					writeContent("./resources/temp_template.html", content2)
+					writeContent("./resources/temp_template_plain.html", plain_content2)
+				},
+				Config: testAccCheckSendgridTemplateVersionConfigUpdatedContent,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSendgridTemplateVersionExists("sendgrid_template_version.foo"),
+					resource.TestCheckResourceAttr(
+						"sendgrid_template_version.foo", "name", "name for template version foo"),
+					resource.TestCheckResourceAttr(
+						"sendgrid_template_version.foo", "subject", "foo subject"),
+					resource.TestCheckResourceAttr(
+						"sendgrid_template_version.foo", "html_content_hash", getHash(content2)),
+					resource.TestCheckResourceAttr(
+						"sendgrid_template_version.foo", "plain_content_hash", getHash(plain_content2)),
 					resource.TestCheckResourceAttr(
 						"sendgrid_template_version.foo", "active", "true"),
 				),
 			},
 		},
 	})
+}
+
+func writeContent(file string, content string) error {
+	filename, err := homedir.Expand(file)
+	if err != nil {
+		fmt.Println("File %s can't be expand. %s", file, err)
+		return err
+	}
+	err = ioutil.WriteFile(filename, []byte(content), 0644)
+	if err != nil {
+		fmt.Println("File %s can't be written. %s", filename, err)
+		return err
+	}
+	return nil
 }
 
 func testAccCheckSendgridTemplateVersionDestroy(s *terraform.State) error {
@@ -183,6 +223,8 @@ resource "sendgrid_template_version" "foo" {
 	subject = "foo subject"
 	html_content_file = "./resources/test_template.html"
 	plain_content_file = "./resources/test_template_plain.html"
+	html_content_hash = "${base64sha256(file("./resources/test_template.html"))}"
+	plain_content_hash = "${base64sha256(file("./resources/test_template_plain.html"))}"
 }
 `
 
@@ -198,6 +240,8 @@ resource "sendgrid_template_version" "foo" {
 	html_content_file = "./resources/test_template.html"
 	plain_content_file = "./resources/test_template_plain.html"
   active = false
+	html_content_hash = "${base64sha256(file("./resources/test_template.html"))}"
+	plain_content_hash = "${base64sha256(file("./resources/test_template_plain.html"))}"
 }
 `
 
@@ -213,6 +257,8 @@ resource "sendgrid_template_version" "foo" {
 	html_content_file = "./resources/test_template.html"
 	plain_content_file = "./resources/test_template_plain.html"
   active = false
+	html_content_hash = "${base64sha256(file("./resources/test_template.html"))}"
+	plain_content_hash = "${base64sha256(file("./resources/test_template_plain.html"))}"
 }
 `
 
@@ -225,8 +271,10 @@ resource "sendgrid_template_version" "foo" {
   name = "name for template version foo"
 	template_id = "${sendgrid_template.foo.id}"
 	subject = "foo subject"
-	html_content_file = "./resources/test_template2.html"
-	plain_content_file = "./resources/test_template_plain.html"
+	html_content_file = "./resources/temp_template.html"
+	plain_content_file = "./resources/temp_template_plain.html"
+	html_content_hash = "${base64sha256(file("./resources/temp_template.html"))}"
+	plain_content_hash = "${base64sha256(file("./resources/temp_template_plain.html"))}"
 }
 `
 
@@ -251,7 +299,6 @@ func existsVersionHelper(s *terraform.State, client *sendgrid_client.Client) err
 	for _, r := range s.RootModule().Resources {
 		fmt.Println(r.Type)
 		if r.Type == "sendgrid_template_version" {
-			fmt.Println("Exists")
 			if _, err := client.GetTemplateVersion(r.Primary.Attributes["template_id"], r.Primary.ID); err != nil {
 				return fmt.Errorf("Received an error retrieving template version %s", err)
 			}

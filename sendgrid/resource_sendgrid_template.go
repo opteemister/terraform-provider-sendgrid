@@ -46,7 +46,7 @@ func resourceSendgridTemplateExists(d *schema.ResourceData, meta interface{}) (b
 		if strings.Contains(err.Error(), "404 Not Found") {
 			return false, nil
 		}
-		return false, err
+		return false, fmt.Errorf("error check existance template: %s", err.Error())
 	}
 
 	return true, nil
@@ -74,7 +74,7 @@ func resourceSendgridTemplateRead(d *schema.ResourceData, meta interface{}) erro
 	fmt.Println("Read template")
 	m, err := client.GetTemplate(d.Id())
 	if err != nil {
-		return err
+		return fmt.Errorf("error reading template: %s", err.Error())
 	}
 	fmt.Println("[DEBUG] Template: %v", m)
 	d.Set("name", m.Name)
@@ -103,7 +103,7 @@ func resourceSendgridTemplateDelete(d *schema.ResourceData, meta interface{}) er
 
 	fmt.Println("Delete template")
 	if err := client.DeleteTemplate(d.Id()); err != nil {
-		return err
+		return fmt.Errorf("error deleting template: %s", err.Error())
 	}
 
 	return nil
@@ -112,7 +112,7 @@ func resourceSendgridTemplateDelete(d *schema.ResourceData, meta interface{}) er
 func resourceSendgridTemplateImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	fmt.Println("Import template")
 	if err := resourceSendgridTemplateRead(d, meta); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error importing template: %s", err.Error())
 	}
 	return []*schema.ResourceData{d}, nil
 }

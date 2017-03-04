@@ -10,7 +10,7 @@ import (
 	"github.com/opteemister/terraform-client-sendgrid"
 )
 
-func TestAccSendgridTemplate_Basic(t *testing.T) {
+func testAccSendgridTemplate_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -28,7 +28,7 @@ func TestAccSendgridTemplate_Basic(t *testing.T) {
 	})
 }
 
-func TestAccSendgridTemplate_Updated(t *testing.T) {
+func testAccSendgridTemplate_Updated(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
