@@ -129,27 +129,25 @@ func resourceSendgridTemplateVersionCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceSendgridTemplateVersionRead(d *schema.ResourceData, meta interface{}) error {
-	// Don't know why but it didn't requried here
-	//client := meta.(*sendgrid_client.Client)
+	client := meta.(*sendgrid_client.Client)
 
-	// fmt.Println("Read template_version")
-	//   m, err := client.GetTemplateVersion(d.Get("template_id").(string), d.Id())
-	//   if err != nil {
-	//     return fmt.Errorf("error reading template_version: %s", err.Error())
-	//   }
-
-	htmlContent, err := loadFileContent(d.Get("html_content_file").(string))
+	fmt.Println("Read template_version")
+	m, err := client.GetTemplateVersion(d.Get("template_id").(string), d.Id())
 	if err != nil {
-		return err
+		return fmt.Errorf("error reading template_version: %s", err.Error())
 	}
 
-	plainContent, err := loadFileContent(d.Get("plain_content_file").(string))
-	if err != nil {
-		return err
-	}
-	d.Set("html_content_hash", getHash(string(htmlContent)))
-	d.Set("plain_content_hash", getHash(string(plainContent)))
-	//fmt.Printf("[DEBUG] TemplateVersion: %s ----- %s", getHash(string(m.HtmlContent)), getHash(string(htmlContent)))
+	remoteHtmlHash := getHash(string(m.HtmlContent))
+	remotePlainHash := getHash(string(m.PlainContent))
+
+	stateHtmlHash := d.Get("html_content_hash")
+	statePlainHash := d.Get("plain_content_hash")
+
+	fmt.Printf("[DEBUG] TemplateVersion: %s ----- %s", remoteHtmlHash, stateHtmlHash)
+	fmt.Printf("[DEBUG] TemplateVersion: %s ----- %s", remotePlainHash, statePlainHash)
+
+	d.Set("html_content_hash", remoteHtmlHash)
+	d.Set("plain_content_hash", remotePlainHash)
 	return nil
 }
 
@@ -164,6 +162,9 @@ func resourceSendgridTemplateVersionUpdate(d *schema.ResourceData, meta interfac
 	if err := client.UpdateTemplateVersion(d.Id(), m); err != nil {
 		return fmt.Errorf("error updating TemplateVersion: %s", err.Error())
 	}
+
+	d.Set("html_content_hash", getHash(m.HtmlContent))
+	d.Set("plain_content_hash", getHash(m.PlainContent))
 
 	return resourceSendgridTemplateVersionRead(d, meta)
 }

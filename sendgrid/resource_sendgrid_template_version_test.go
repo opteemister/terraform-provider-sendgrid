@@ -93,11 +93,6 @@ func TestAccSendgridTemplateVersion_Updated(t *testing.T) {
 		t.Error("Can't read template file")
 	}
 
-	content1 := "content1"
-	content2 := "content2"
-	plain_content1 := "plain_content1"
-	plain_content2 := "plain_content2"
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -135,6 +130,21 @@ func TestAccSendgridTemplateVersion_Updated(t *testing.T) {
 						"sendgrid_template_version.foo", "active", "false"),
 				),
 			},
+		},
+	})
+}
+
+func testAccSendgridTemplateVersion_UpdatedContent(t *testing.T) {
+	content1 := "content1"
+	content2 := "content2"
+	plain_content1 := "plain_content1"
+	plain_content2 := "plain_content2"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSendgridTemplateVersionDestroy,
+		Steps: []resource.TestStep{
 			resource.TestStep{
 				PreConfig: func() {
 					writeContent("./resources/temp_template.html", content1)
