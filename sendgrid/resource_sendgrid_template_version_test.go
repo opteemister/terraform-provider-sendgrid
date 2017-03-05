@@ -134,7 +134,7 @@ func TestAccSendgridTemplateVersion_Updated(t *testing.T) {
 	})
 }
 
-func testAccSendgridTemplateVersion_UpdatedContent(t *testing.T) {
+func TestAccSendgridTemplateVersion_UpdatedContent(t *testing.T) {
 	content1 := "content1"
 	content2 := "content2"
 	plain_content1 := "plain_content1"
@@ -277,6 +277,8 @@ resource "sendgrid_template_version" "foo" {
 	subject = "foo subject"
 	html_content_file = "./resources/temp_template.html"
 	plain_content_file = "./resources/temp_template_plain.html"
+	html_content_hash = "${base64sha256(file("./resources/temp_template.html"))}"
+	plain_content_hash = "${base64sha256(file("./resources/temp_template_plain.html"))}"
 }
 `
 
