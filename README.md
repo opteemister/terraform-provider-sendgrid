@@ -87,13 +87,13 @@ $ terraform show
 
 ```ruby
 provider "sendgrid" {
-  apiKey = "sendgrid_key"
+  api_key = "sendgrid_key"
 }
 ```
 
 #### Parameters
 
-* `apiKey`: Optional. Set the key for sendgrid account. You can set it through the ENV_VARS
+* `api_key`: Optional. Set the key for sendgrid account. You can set it through the ENV_VARS
 
 ### sendgrid_template
 
