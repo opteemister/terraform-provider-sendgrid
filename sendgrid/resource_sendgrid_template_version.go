@@ -195,12 +195,12 @@ func resourceSendgridTemplateVersionImport(d *schema.ResourceData, meta interfac
 func loadFileContent(v string) ([]byte, error) {
 	filename, err := homedir.Expand(v)
 	if err != nil {
-		fmt.Println("File %s can't be expand. %s", v, err)
+		fmt.Printf("File %s can't be expand. %s", v, err)
 		return nil, err
 	}
 	fileContent, err := ioutil.ReadFile(filename)
 	if err != nil {
-		fmt.Println("File %s can't be read. %s", filename, err)
+		fmt.Printf("File %s can't be read. %s", filename, err)
 		return nil, err
 	}
 	return fileContent, nil

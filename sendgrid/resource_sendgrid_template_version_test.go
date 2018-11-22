@@ -192,12 +192,12 @@ func TestAccSendgridTemplateVersion_UpdatedContent(t *testing.T) {
 func writeContent(file string, content string) error {
 	filename, err := homedir.Expand(file)
 	if err != nil {
-		fmt.Println("File %s can't be expand. %s", file, err)
+		fmt.Printf("File %s can't be expand. %s", file, err)
 		return err
 	}
 	err = ioutil.WriteFile(filename, []byte(content), 0644)
 	if err != nil {
-		fmt.Println("File %s can't be written. %s", filename, err)
+		fmt.Printf("File %s can't be written. %s", filename, err)
 		return err
 	}
 	return nil

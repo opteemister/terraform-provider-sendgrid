@@ -59,6 +59,7 @@ provider "sendgrid" {
 
 resource "sendgrid_template" "first_template" {
   name = "name"
+  generation = "dynamic"
 }
 
 resource "sendgrid_template_version" "first_template_version" {
@@ -102,12 +103,14 @@ provider "sendgrid" {
 ```ruby
 resource "sendgrid_template" "my_template" {
   name = "my_template"
+  generation = "legacy"
 }
 ```
 
 #### Parameters
 
 * `name`: Required. The name of the template.
+* `generation`: Optional. Defines whether the template supports dynamic replacement. [`dynamic`|`legacy`]
 
 #### Exported Parameters
 
