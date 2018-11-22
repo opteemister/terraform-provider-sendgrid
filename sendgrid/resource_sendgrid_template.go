@@ -24,6 +24,10 @@ func resourceSendgridTemplate() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"generation": &schema.Schema{
+                Type:     schema.TypeString,
+                Optional: true,
+            },
 		},
 	}
 }
@@ -31,6 +35,7 @@ func resourceSendgridTemplate() *schema.Resource {
 func buildTemplateStruct(d *schema.ResourceData) *sendgrid_client.Template {
 	m := sendgrid_client.Template{
 		Name: d.Get("name").(string),
+		Generation: d.Get("generation").(string),
 	}
 
 	return &m
@@ -76,7 +81,7 @@ func resourceSendgridTemplateRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("error reading template: %s", err.Error())
 	}
-	fmt.Println("[DEBUG] Template: %v", m)
+	fmt.Printf("[DEBUG] Template: %v", m)
 	d.Set("name", m.Name)
 
 	return nil

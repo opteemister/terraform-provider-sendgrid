@@ -22,6 +22,8 @@ func TestAccSendgridTemplate_Basic(t *testing.T) {
 					testAccCheckSendgridTemplateExists("sendgrid_template.foo"),
 					resource.TestCheckResourceAttr(
 						"sendgrid_template.foo", "name", "name for template foo"),
+					resource.TestCheckResourceAttr(
+						"sendgrid_template.foo", "generation", "dynamic"),
 				),
 			},
 		},
@@ -40,6 +42,8 @@ func TestAccSendgridTemplate_Updated(t *testing.T) {
 					testAccCheckSendgridTemplateExists("sendgrid_template.foo"),
 					resource.TestCheckResourceAttr(
 						"sendgrid_template.foo", "name", "name for template foo"),
+					resource.TestCheckResourceAttr(
+						"sendgrid_template.foo", "generation", "dynamic"),
 				),
 			},
 			resource.TestStep{
@@ -48,6 +52,8 @@ func TestAccSendgridTemplate_Updated(t *testing.T) {
 					testAccCheckSendgridTemplateExists("sendgrid_template.foo"),
 					resource.TestCheckResourceAttr(
 						"sendgrid_template.foo", "name", "name for template bar"),
+					resource.TestCheckResourceAttr(
+						"sendgrid_template.foo", "generation", "legacy"),
 				),
 			},
 		},
@@ -78,12 +84,14 @@ func testAccCheckSendgridTemplateExists(n string) resource.TestCheckFunc {
 const testAccCheckSendgridTemplateConfig = `
 resource "sendgrid_template" "foo" {
   name = "name for template foo"
+  generation = "dynamic"
 }
 `
 
 const testAccCheckSendgridTemplateConfigUpdated = `
 resource "sendgrid_template" "foo" {
   name = "name for template bar"
+  generation = "legacy"
 }
 `
 
